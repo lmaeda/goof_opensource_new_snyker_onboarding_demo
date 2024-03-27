@@ -1,0 +1,29 @@
+name: Generate SBOM and Place in Repo
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: write
+
+jobs:
+  generate-sbom:
+    permissions:
+      contents: write # to write files to the repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      - name: Authenticate Snyk CLI
+        run: snyk auth 13a7570f-9d0b-4713-a306-55f9c47b4cbb
+
+      - name: Generate SBOM
+        run: |
+          snyk sbom --format spdx2.3+json --json-file-output ./mySBOM.json
+          cp mySBOM.json $GITHUB_WORKSPACE/
