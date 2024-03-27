@@ -1,4 +1,4 @@
-name: Copy SBOM to SBOM-Test Repository
+name: Generate and Move SBOM
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  copy-sbom:
+  generate-sbom:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -19,22 +19,16 @@ jobs:
         run: snyk auth 13a7570f-9d0b-4713-a306-55f9c47b4cbb
 
       - name: Generate SBOM
-        run: snyk sbom --format=cyclonedx1.5+json --json-file-output ./mySBOM_temp.json
+        run: snyk sbom --format=cyclonedx1.5+json --json-file-output ./goof_opensource/sbom/mySBOM.json
 
-      - name: Create SBOM-Test Directory
-        run: mkdir -p ../SBOM-Test
+      - name: Move SBOM file to sbom directory
+        run: mv goof_opensource/mySBOM.json goof_opensource/sbom/
 
-      - name: Copy SBOM file to SBOM-Test Repository
-        run: cp mySBOM_temp.json ../SBOM-Test/mySBOM.json
-
-      - name: Commit SBOM file to SBOM-Test Repository
+      - name: Commit SBOM file
         run: |
-          cd ../SBOM-Test
-          git init
-          git config user.email "action@github.com"
-          git config user.name "GitHub Action"
-          git add mySBOM.json
-          git commit -m "Add SBOM file from goof_opensource repository"
-          git remote add origin https://github.com/QuantumField737/SBOM-Test.git
-          git branch -M main
-          git push -u origin main
+          cd goof_opensource
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add sbom/mySBOM.json
+          git commit -m "Move SBOM file to sbom directory"
+          git push origin main
