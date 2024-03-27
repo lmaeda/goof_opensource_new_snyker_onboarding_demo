@@ -1,4 +1,4 @@
-name: Generate and Move SBOM
+name: Generate SBOM and HTML Report
 
 on:
   push:
@@ -6,25 +6,29 @@ on:
       - main
 
 jobs:
-  generate-sbom:
+  generate-sbom-and-report:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Install Snyk CLI
-        run: npm install -g snyk
-
-      - name: Authenticate Snyk CLI
-        run: snyk auth 13a7570f-9d0b-4713-a306-55f9c47b4cbb
+      - name: Install Snyk CLI and Authenticate
+        run: |
+          npm install -g snyk
+          snyk auth 13a7570f-9d0b-4713-a306-55f9c47b4cbb
 
       - name: Generate SBOM
         run: snyk sbom --format=cyclonedx1.5+json --json-file-output ./sbom/mySBOM.json
 
-      - name: Commit SBOM file
+      - name: Run Bomber Scan and Generate HTML Report
         run: |
+          bomber scan sbom/mySBOM.json --output=html sbom/mySBOM.html
+
+      - name: Commit HTML Report
+        run: |
+          cd sbom
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add sbom/mySBOM.json
-          git commit -m "Generate SBOM file in sbom directory"
+          git add mySBOM.html
+          git commit -m "Generate HTML report from SBOM"
           git push origin main
