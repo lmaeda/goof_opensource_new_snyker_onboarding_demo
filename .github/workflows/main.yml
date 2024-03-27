@@ -21,16 +21,20 @@ jobs:
       - name: Generate SBOM
         run: snyk sbom --format=cyclonedx1.5+json --json-file-output ./mySBOM_temp.json
 
+      - name: Create SBOM-Test Directory
+        run: mkdir -p ../SBOM-Test
+
       - name: Copy SBOM file to SBOM-Test Repository
-        run: |
-          mkdir -p ../SBOM-Test
-          cp mySBOM_temp.json ../SBOM-Test/mySBOM.json
+        run: cp mySBOM_temp.json ../SBOM-Test/mySBOM.json
 
       - name: Commit SBOM file to SBOM-Test Repository
         run: |
           cd ../SBOM-Test
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git init
+          git config user.email "action@github.com"
+          git config user.name "GitHub Action"
           git add mySBOM.json
           git commit -m "Add SBOM file from goof_opensource repository"
-          git push origin main
+          git remote add origin https://github.com/QuantumField737/SBOM-Test.git
+          git branch -M main
+          git push -u origin main
