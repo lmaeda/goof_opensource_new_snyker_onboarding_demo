@@ -24,6 +24,7 @@ jobs:
         run: snyk auth 13a7570f-9d0b-4713-a306-55f9c47b4cbb
 
       - name: Generate SBOM
-        run: |
-          snyk sbom --format spdx2.3+json --json-file-output ./mySBOM.json
-          cp mySBOM.json $GITHUB_WORKSPACE/
+        run: snyk sbom --format=cyclonedx1.5+json --json-file-output ./mySBOM_temp.json
+
+      - name: Move SBOM file to repository root
+        run: mv mySBOM_temp.json $GITHUB_WORKSPACE/mySBOM.json
