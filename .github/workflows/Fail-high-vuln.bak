@@ -22,7 +22,7 @@ jobs:
           npm install -g snyk
 
       - name: Set up Snyk CLI to check for security issues
-        run: snyk auth 13a7570f-9d0b-4713-a306-55f9c47b4cbb
+        run: snyk auth ${{ secrets.SNYK_API_TOKEN }}
 
       - name: Run Snyk test
         run: snyk test
