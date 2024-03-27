@@ -1,21 +1,16 @@
-name: Generate SBOM and Place in Repo
+name: Copy SBOM to SBOM-Test Repository
 
 on:
   push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
-
-permissions:
-  contents: write
+    branches:
+      - main
 
 jobs:
-  generate-sbom:
-    permissions:
-      contents: write # to write files to the repository
+  copy-sbom:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
       - name: Install Snyk CLI
         run: npm install -g snyk
@@ -26,5 +21,15 @@ jobs:
       - name: Generate SBOM
         run: snyk sbom --format=cyclonedx1.5+json --json-file-output ./mySBOM_temp.json
 
-      - name: Move SBOM file to repository root
-        run: mv mySBOM_temp.json $GITHUB_WORKSPACE/mySBOM.json
+      - name: Copy SBOM file to SBOM-Test Repository
+        run: |
+          cp mySBOM_temp.json $GITHUB_WORKSPACE/../SBOM-Test/mySBOM.json
+
+      - name: Commit SBOM file to SBOM-Test Repository
+        run: |
+          cd ../SBOM-Test
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add mySBOM.json
+          git commit -m "Add SBOM file from goof_opensource repository"
+          git push origin main
