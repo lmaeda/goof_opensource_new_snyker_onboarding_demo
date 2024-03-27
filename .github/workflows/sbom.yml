@@ -2,7 +2,6 @@ name: Generate and Move SBOM
 
 on:
   push:
-  pull:
 
 jobs:
   generate-sbom:
