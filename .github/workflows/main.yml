@@ -19,16 +19,12 @@ jobs:
         run: snyk auth 13a7570f-9d0b-4713-a306-55f9c47b4cbb
 
       - name: Generate SBOM
-        run: snyk sbom --format=cyclonedx1.5+json --json-file-output ./goof_opensource/sbom/mySBOM.json
-
-      - name: Move SBOM file to sbom directory
-        run: mv goof_opensource/mySBOM.json goof_opensource/sbom/
+        run: snyk sbom --format=cyclonedx1.5+json --json-file-output ./sbom/mySBOM.json
 
       - name: Commit SBOM file
         run: |
-          cd goof_opensource
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add sbom/mySBOM.json
-          git commit -m "Move SBOM file to sbom directory"
+          git commit -m "Generate SBOM file in sbom directory"
           git push origin main
