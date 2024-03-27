@@ -2,8 +2,6 @@ name: Generate and Move SBOM
 
 on:
   push:
-    branches:
-      - main
 
 jobs:
   generate-sbom:
@@ -19,12 +17,12 @@ jobs:
         run: snyk auth ${{ secrets.SNYK_API_TOKEN }}
 
       - name: Generate SBOM
-        run: snyk sbom --format=cyclonedx1.5+json --json-file-output ./sbom/mySBOM.json
+        run: snyk sbom --format=cyclonedx1.5+json --json-file-output ./sbom/mySBOM_$(date +"%Y%m%d_%H%M%S")_${{ github.run_id }}.json
 
       - name: Commit SBOM file
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add sbom/mySBOM.json
+          git add sbom/*.json
           git commit -m "Generate SBOM file in sbom directory"
           git push origin main
