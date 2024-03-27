@@ -1,0 +1,36 @@
+name: Snyk Security
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  snyk:
+    permissions:
+      contents: read # for actions/checkout to fetch code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Snyk CLI to check for security issues
+        uses: snyk/actions/setup@806182742461562b67788a64410098c9d9b96adb
+
+        env:
+          # Snyk API token
+          SNYK_TOKEN: 13a7570f-9d0b-4713-a306-55f9c47b4cbb
+
+      - name: Run Snyk test
+        run: snyk test
+
+      - name: Check for high-severity vulnerabilities
+        run: |
+          if snyk test --severity-threshold=high; then
+            echo "No high-severity vulnerabilities found."
+          else
+            echo "High-severity vulnerabilities found. Failing the workflow."
+            exit 1
+          fi
